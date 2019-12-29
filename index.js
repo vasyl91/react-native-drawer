@@ -11,6 +11,13 @@ const propsWhomRequireUpdate = ['closedDrawerOffset', 'openDrawerOffset', 'type'
 
 export default class Drawer extends Component {
 
+  constructor(props){
+    super();
+    this.state={
+      open: this.props.open;
+    }
+  }
+
   _length = 0;
   _prevLength = 0;
   _offsetOpen = 0;
@@ -125,16 +132,21 @@ export default class Drawer extends Component {
     this.initialize(this.props)
   }
 
-  componentWillReceiveProps(nextProps) {
+  static getDerivedStateFromProps(nextProps, prevState){
     if (this.requiresResync(nextProps)) this.resync(null, nextProps)
 
-    if (nextProps.open !== null && this._open !== nextProps.open) {
-      this._syncAfterUpdate = true
-      this._open = nextProps.open
+    if (nextProps.open !== null && this._open !== prevState.open){
+      return { open: nextProps.open};
     }
+    else return null;
   }
 
-  componentDidUpdate() {
+  componentDidUpdate(prevProps, prevState) {
+    if (prevProps.open !== this.props.open){
+      this._syncAfterUpdate = true
+      this._open = this.state.open
+    }
+
     if (this._syncAfterUpdate) {
       this._syncAfterUpdate = false
       this._open ? this.open('force') : this.close('force')
